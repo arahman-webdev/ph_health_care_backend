@@ -1,11 +1,18 @@
-import jwt, { JwtPayload, SignOptions } from "jsonwebtoken"
+import jwt, {  JwtPayload, Secret, SignOptions } from "jsonwebtoken"
 
-export const generateToken = (payload:object, secret:string, expiresIn:string) =>{
+export const generateToken = (payload:object, secret:Secret, expiresIn:string) =>{
     
     const accessToken = jwt.sign(payload, secret, {
         algorithm:"HS256",
         expiresIn
-    } as SignOptions)
+    } as SignOptions);
 
     return accessToken
+
+    
+}
+
+
+export const verifyToken = (token:string, secret:Secret)=>{
+    return jwt.verify(token, secret)
 }

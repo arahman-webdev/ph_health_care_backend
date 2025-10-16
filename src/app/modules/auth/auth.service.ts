@@ -21,11 +21,17 @@ const userLogin = async(payload:{email:string, password:string})=>{
         throw new Error("Your password is not correct")
     }
 
+
+    const jwtPayload = {
+        userId: user.id,
+        userEmail: user.email,
+        userRole: user.role
+    }
     
 
-    const userToken = generateToken({email: user.email, role:user.role}, "secret", "1h")
+    const userToken = generateToken(jwtPayload, "secret", "1h")
 
-    const refreshToken = generateToken({email: user.email, role:user.role}, "secret", "1h")
+    const refreshToken = generateToken(jwtPayload, "secret", "1h")
 
     return {
         accessToken: userToken,

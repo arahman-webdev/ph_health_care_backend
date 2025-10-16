@@ -2,12 +2,12 @@
 import bcryptjs from "bcryptjs"
 import { prisma } from "../../../config/db";
 
-import { PatientCreateInput } from "./user.interface";
+import { AdminCreateInput, UserCreateInput } from "./user.interface";
 import { IOptions, paginationHelper } from "../../utills/paginationHelpers";
 import { Prisma } from "@prisma/client";
 
 
-const createPatient = async (payload: PatientCreateInput) => {
+const createPatient = async (payload: UserCreateInput) => {
 
     const hashPassword = await bcryptjs.hash(payload.password, Number(process.env.BCRYPT_SALT_ROUNDS))
 
@@ -33,6 +33,38 @@ const createPatient = async (payload: PatientCreateInput) => {
     return result
 }
 
+
+// Create admin 
+
+
+const createAdmin = async (payload: AdminCreateInput)=>{
+    const hashPassword = await bcryptjs.hash(payload.password, Number(process.env.BCRYPT_SALT_ROUNDS))
+
+    const result = await prisma.$transaction(async(tnx)=>{
+        await tnx.user.create({
+            data: {
+                email: payload.email,
+                password: hashPassword
+            }
+        });
+
+        return await tnx.admin.create({
+            data:{
+                name: payload.name,
+                email: payload.email,
+                profilePhoto: payload.profilePhoto,
+                contactNumber: payload.contactNumber
+            }
+        })
+
+        
+    
+    })
+
+    return result
+
+    
+}
 
 
 const allUserss = async ({ page, limit, searchTerm, orderBy, sortBy, role, status }: { page: number, limit: number, searchTerm?: string, orderBy: string, sortBy: string, role: any, status: any }) => {
@@ -130,5 +162,6 @@ const allUsers = async (params: any, options: IOptions) => {
 
 export const userService = {
     createPatient,
-    allUsers
+    allUsers,
+    createAdmin
 }
