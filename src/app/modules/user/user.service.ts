@@ -2,9 +2,9 @@
 import bcryptjs from "bcryptjs"
 import { prisma } from "../../../config/db";
 
-import { AdminCreateInput, UserCreateInput } from "./user.interface";
+import { AdminCreateInput, DoctorCreateInput, UserCreateInput } from "./user.interface";
 import { IOptions, paginationHelper } from "../../utills/paginationHelpers";
-import { Prisma } from "@prisma/client";
+import { Doctor, Prisma, UserRole } from "@prisma/client";
 
 
 const createPatient = async (payload: UserCreateInput) => {
@@ -37,34 +37,71 @@ const createPatient = async (payload: UserCreateInput) => {
 // Create admin 
 
 
-const createAdmin = async (payload: AdminCreateInput)=>{
+const createAdmin = async (payload: AdminCreateInput) => {
     const hashPassword = await bcryptjs.hash(payload.password, Number(process.env.BCRYPT_SALT_ROUNDS))
 
-    const result = await prisma.$transaction(async(tnx)=>{
+    const result = await prisma.$transaction(async (tnx) => {
         await tnx.user.create({
             data: {
                 email: payload.email,
-                password: hashPassword
+                password: hashPassword,
+                role: payload.role || UserRole.ADMIN
             }
         });
 
         return await tnx.admin.create({
-            data:{
+            data: {
                 name: payload.name,
                 email: payload.email,
                 profilePhoto: payload.profilePhoto,
-                contactNumber: payload.contactNumber
+                contactNumber: payload.contactNumber,
+
             }
         })
 
-        
-    
+
+
     })
 
     return result
 
-    
+
 }
+const createDoctor = async (payload: DoctorCreateInput) => {
+    const hashPassword = await bcryptjs.hash(payload.password, Number(process.env.BCRYPT_SALT_ROUNDS))
+
+
+    const result = await prisma.$transaction(async (tnx) => {
+        await tnx.user.create({
+            data: {
+                email: payload.email,
+                password: hashPassword,
+                role: payload.role
+            }
+        });
+
+        return await tnx.doctor.create({
+            data: {
+                name: payload.name,
+                email: payload.email,
+                profilePhoto: payload.profilePhoto,
+                contactNumber: payload.contactNumber,
+                address: payload.address,
+                registrationNumber: payload.registrationNumber,
+                gender: payload.gender,
+                appointmentFee: payload.appointmentFee,
+                qualification: payload.qualification,
+                currentWorkingPlace: payload.currentWorkingPlace,
+                designation: payload.designation,
+
+            }
+        })
+    })
+
+    return result
+}
+
+
 
 
 const allUserss = async ({ page, limit, searchTerm, orderBy, sortBy, role, status }: { page: number, limit: number, searchTerm?: string, orderBy: string, sortBy: string, role: any, status: any }) => {
@@ -96,12 +133,12 @@ const allUserss = async ({ page, limit, searchTerm, orderBy, sortBy, role, statu
 const allUsers = async (params: any, options: IOptions) => {
 
     const { page, limit, skip, sortBy, orderBy } = paginationHelper.calculatePagination(options)
-    
+
     console.log(options)
 
     const { searchTerm, ...filterData } = params;
 
-    console.log(searchTerm,filterData)
+    console.log(searchTerm, filterData)
 
     const andConditions: Prisma.UserWhereInput[] = [];
 
@@ -133,7 +170,7 @@ const allUsers = async (params: any, options: IOptions) => {
         AND: andConditions
     } : {}
 
- 
+
 
     const users = await prisma.user.findMany({
         skip,
@@ -146,7 +183,7 @@ const allUsers = async (params: any, options: IOptions) => {
         }
     });
 
-       
+
     const totalUsers = await prisma.user.count({
         where: whereConditions
     })
@@ -156,12 +193,13 @@ const allUsers = async (params: any, options: IOptions) => {
             limit,
             totalUsers
         },
-        data:users
+        data: users
     }
 }
 
 export const userService = {
     createPatient,
     allUsers,
-    createAdmin
+    createAdmin,
+    createDoctor
 }

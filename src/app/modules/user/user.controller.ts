@@ -51,7 +51,7 @@ const createAdmin = async (req: Request, res: Response, next: NextFunction) => {
             data = JSON.parse(data.data);
         }
 
-        const { name, email, password,contactNumber } = data
+        const { name, email, password,contactNumber,role } = data
 
         let profilePhoto: string | null = null
 
@@ -66,7 +66,54 @@ const createAdmin = async (req: Request, res: Response, next: NextFunction) => {
             email,
             password,
             profilePhoto,
-            contactNumber
+            contactNumber,
+            role
+        })
+
+        res.status(201).json({
+            status: true,
+            message: "User created successfully",
+            data: result
+        })
+    } catch (err) {
+        console.log(err)
+        next(err)
+    }
+}
+const createDoctor = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        let data = req.body
+
+
+
+        if (data.data && typeof data.data === "string") {
+            data = JSON.parse(data.data);
+        }
+
+        const { name, email, password,contactNumber,role,address, registrationNumber,gender, appointmentFee,qualification,currentWorkingPlace,designation } = data
+
+        let profilePhoto: string | null = null
+
+
+        if (req.file) {
+            const upload = await uploadToCloudinary(req.file.buffer, 'health_care')
+            profilePhoto = upload.secure_url;
+        }
+
+        const result = await userService.createDoctor({
+            name,
+            email,
+            password,
+            profilePhoto,
+            contactNumber,
+            role,
+            address,
+            registrationNumber,
+            gender,
+            appointmentFee,
+            qualification,
+            currentWorkingPlace,
+            designation
         })
 
         res.status(201).json({
@@ -133,5 +180,6 @@ const allUsers = async (req: Request, res: Response) => {
 export const userController = {
     createPatient,
     allUsers,
-    createAdmin
+    createAdmin,
+    createDoctor
 }

@@ -9,8 +9,9 @@ import { UserRole } from "@prisma/client"
 
 const router = express.Router()
 
-router.get("/",checkAuth(), userController.allUsers)
+router.get("/",checkAuth(UserRole.ADMIN), userController.allUsers)
 router.post("/create-patient",upload.single("profile"), userController.createPatient)
-router.post("/create-admin",upload.single("profile"), userController.createPatient)
+router.post("/create-admin" ,upload.single("profile"), userController.createAdmin)
+router.post("/create-admin", checkAuth(UserRole.ADMIN) ,upload.single("profile"), userController.createDoctor)
 
 export const userRoutes = router
