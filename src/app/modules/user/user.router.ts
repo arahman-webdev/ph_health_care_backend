@@ -11,5 +11,6 @@ const router = express.Router()
 
 router.get("/",checkAuth(), userController.allUsers)
 router.post("/create-patient",upload.single("profile"), userController.createPatient)
+router.post("/create-admin",upload.single("profile"), userController.createPatient)
 
 export const userRoutes = router
