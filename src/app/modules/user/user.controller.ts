@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { userService } from "./user.service";
 import { uploadToCloudinary } from "../../../config/uploadToCloudinary";
+import pick from "../../utills/pick";
 
 
 const createPatient = async (req: Request, res: Response) => {
@@ -41,14 +42,49 @@ const createPatient = async (req: Request, res: Response) => {
 }
 
 
+// const allUserss = async (req: Request, res: Response) =>{
+// try{
+    
+//     const page = Number(req.query.page) || 1
+//     const limit = Number(req.query.limit) || 4
+//     const searchTerm = (req.query.searchTerm as string) || ""
+//     const sortBy = (req.query.sortBy as string)
+//     const orderBy = (req.query.orderBy as string)
+//     const role = req.query.role
+//     const status = req.query.status
+
+    
+   
+//     const result = await userService.allUsers({page, limit,searchTerm,sortBy, orderBy, role, status})
+
+//     res.status(201).json({
+//         status: true,
+//         message: "User retrieved successfully",
+//         data: result
+//     })
+// }catch(err){
+//     console.log(err)
+// }
+// }
+
+
 const allUsers = async (req: Request, res: Response) =>{
 try{
-    const result = await userService.allUsers()
+    
+    const filters = pick(req.query, ["status", "role", "email", "searchTerm"] )
+    const options = pick(req.query, ["page", "limit","sortBy","orderBy"])
+   
+    const result = await userService.allUsers(filters, options)
 
     res.status(201).json({
         status: true,
         message: "User retrieved successfully",
-        data: result
+        data: result.data,
+        meta: result.meta
+
+        
+            
+        
     })
 }catch(err){
     console.log(err)
