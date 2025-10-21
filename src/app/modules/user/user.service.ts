@@ -103,7 +103,6 @@ const createDoctor = async (payload: DoctorCreateInput) => {
 
 
 
-
 const allUserss = async ({ page, limit, searchTerm, orderBy, sortBy, role, status }: { page: number, limit: number, searchTerm?: string, orderBy: string, sortBy: string, role: any, status: any }) => {
 
     const skip = (page - 1) * limit
