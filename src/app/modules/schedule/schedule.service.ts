@@ -2,6 +2,7 @@ import { addHours, addMinutes, format } from "date-fns";
 import { prisma } from "../../../config/db";
 import { schedulePagination, TOptions } from "../../utills/parcticePaginationHelper";
 import { Prisma } from "@prisma/client";
+import { JwtPayload } from "jsonwebtoken";
 // import { prisma } from "../../../../config/db"; // Commented out for debugging
 
 const createSchedule = async (payload: any) => {
@@ -92,12 +93,10 @@ const createSchedule = async (payload: any) => {
 };
 
 
-const getSchedule = async (options: TOptions, filters: any) => {
+const getSchedule = async (options: TOptions, filters: any, user: JwtPayload) => {
   const { page, limit, skip, sortBy, orderBy } = schedulePagination(options)
 
   const { startDateTime, endDateTime } = filters
-
-
 
   const andConditions: Prisma.ScheduleWhereInput[] = [];
 
@@ -126,17 +125,43 @@ const getSchedule = async (options: TOptions, filters: any) => {
 
 
 
+  const doctorSchedules = await prisma.doctorSchedule.findMany({
+    where: {
+      doctor: {
+        email: user.userEmail
+      }
+    },
+    select: {
+      scheduleId: true
+    }
+  })
+
+  console.log("from schedule services", doctorSchedules)
+
+  const doctorScheduleIds = doctorSchedules.map(doctorScheduleId => doctorScheduleId.scheduleId)
+
+
   const allSchedules = await prisma.schedule.findMany({
+    where: {
+      ...whereConditions,
+      id: {
+        notIn: doctorScheduleIds
+      }
+    },
     skip,
     take: limit,
-    where: whereConditions,
     orderBy: {
       [sortBy]: orderBy
     }
   })
 
   const totlaSchedules = await prisma.schedule.count({
-    where: whereConditions
+    where: {
+      ...whereConditions,
+      id: {
+        notIn: doctorScheduleIds
+      }
+    },
   })
 
   return {
@@ -151,9 +176,9 @@ const getSchedule = async (options: TOptions, filters: any) => {
 
 
 
-const deleteScheduleService = async(id:string)=>{
+const deleteScheduleService = async (id: string) => {
   const deleteSchedule = await prisma.schedule.delete({
-    where: {id}
+    where: { id }
   })
 
   return deleteSchedule

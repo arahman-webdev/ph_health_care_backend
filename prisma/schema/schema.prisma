@@ -60,6 +60,8 @@ model Doctor {
     
     doctorSchedules DoctorSchedule[]
 
+    doctorSpecialties DoctorSpecialties[]
+
     @@map("doctors")
 }
 

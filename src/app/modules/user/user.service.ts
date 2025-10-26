@@ -133,7 +133,7 @@ const allUsers = async (params: any, options: IOptions) => {
 
     const { page, limit, skip, sortBy, orderBy } = paginationHelper.calculatePagination(options)
 
-    console.log(options)
+   
 
     const { searchTerm, ...filterData } = params;
 

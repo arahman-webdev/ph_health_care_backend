@@ -6,6 +6,8 @@ import { userRoutes } from "./app/modules/user/user.router";
 import { authRoutes } from "./app/modules/auth/auth.router";
 import { scheduleRoutes } from "./app/modules/schedule/schedule.router";
 import { DoctorScheduleRoutes } from "./app/modules/doctorSchedule/doctorSchedule.router";
+import { specialtiesRouter } from "./app/modules/specialties/specialties.router";
+import { doctorRouter } from "./app/modules/doctor/doctor.roter";
 
 export const app = express()
 
@@ -25,9 +27,11 @@ app.use(cookieParser());
 
 
 app.use('/api/v1/user', userRoutes)
+app.use('/api/v1/doctor', doctorRouter)
 app.use('/api/v1/auth', authRoutes)
 app.use('/api/v1/schedules', scheduleRoutes)
 app.use('/api/v1', DoctorScheduleRoutes)
+app.use('/api/v1/specialty', specialtiesRouter)
 
 
 // Default route testing
