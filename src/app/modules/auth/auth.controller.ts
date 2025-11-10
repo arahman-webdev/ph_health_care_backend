@@ -33,9 +33,32 @@ const userLogin = async (req: Request, res: Response) => {
 }
 
 
+const logoutUser = (req: Request, res: Response) => {
+     const isProd = process.env.NODE_ENV === "production";
+    res.clearCookie('accessToken', {
+        httpOnly: true,
+        secure: isProd,
+        sameSite: isProd ? "none" : "lax",
+        path: "/"
+    })
+
+    res.clearCookie('refreshToken', {
+        httpOnly: true,
+        secure: isProd,
+        sameSite: isProd ? "none" : "lax",
+        path: "/"
+    })
+
+    res.status(201).json({
+        success: true,
+        message: "User logged out successfully",
+        data: null
+    })
+}
 
 
 
 export const authController = {
-    userLogin
+    userLogin,
+    logoutUser
 }

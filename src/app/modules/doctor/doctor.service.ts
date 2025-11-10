@@ -181,7 +181,25 @@ Return your response in JSON format with full individual doctor data.
     });
 
     
-   console.log(completion.choices[0].message);
+  
+
+    const aiContent = completion.choices[0].message?.content || "";
+
+  // 🧠 Extract the JSON part safely (between ```json ... ``` or raw JSON)
+  const match = aiContent.match(/```json([\s\S]*?)```/);
+  const jsonString = match ? match[1].trim() : aiContent.trim();
+
+  let suggestions;
+  try {
+    suggestions = JSON.parse(jsonString);
+  } catch (err) {
+    console.error("❌ Failed to parse AI JSON output:", err);
+    console.log("Raw content:", aiContent);
+    throw new Error("AI response was not valid JSON.");
+  }
+
+  console.log("✅ AI Suggested Doctors:\n", suggestions);
+  return suggestions;
 }
 
 

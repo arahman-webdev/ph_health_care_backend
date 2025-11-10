@@ -2,9 +2,11 @@ import { NextFunction, Request, Response } from "express";
 import { userService } from "./user.service";
 import { uploadToCloudinary } from "../../../config/uploadToCloudinary";
 import pick from "../../utills/pick";
+import { IJwtpayload } from "../../types/commonType";
+import AppError from "../../helper/AppError";
 
 
-const createPatient = async (req: Request, res: Response) => {
+const createPatient = async (req: Request, res: Response, next:NextFunction) => {
     try {
         let data = req.body
 
@@ -38,6 +40,8 @@ const createPatient = async (req: Request, res: Response) => {
         })
     } catch (err) {
         console.log(err)
+        next(err)
+        throw new AppError(500, "Failed to create patient")
     }
 }
 
@@ -51,7 +55,7 @@ const createAdmin = async (req: Request, res: Response, next: NextFunction) => {
             data = JSON.parse(data.data);
         }
 
-        const { name, email, password,contactNumber,role } = data
+        const { name, email, password, contactNumber, role } = data
 
         let profilePhoto: string | null = null
 
@@ -90,7 +94,7 @@ const createDoctor = async (req: Request, res: Response, next: NextFunction) => 
             data = JSON.parse(data.data);
         }
 
-        const { name, email, password,contactNumber,role,address, registrationNumber,gender, appointmentFee,qualification,currentWorkingPlace,designation } = data
+        const { name, email, password, contactNumber, role, address, registrationNumber, gender, appointmentFee, qualification, currentWorkingPlace, designation } = data
 
         let profilePhoto: string | null = null
 
@@ -167,9 +171,21 @@ const allUsers = async (req: Request, res: Response) => {
             message: "User retrieved successfully",
             data: result.data,
             meta: result.meta
+        })
+    } catch (err) {
+        console.log(err)
+    }
+}
 
-
-
+const getMyProfile = async (req: Request &{user?:IJwtpayload}, res: Response) => {
+    try {
+        const user = req.user
+        const result = await userService.getMyProfile(user as IJwtpayload)
+        console.log(result)
+        res.status(201).json({
+            status: true,
+            message: "Me retrieved successfully",
+            data: result,
 
         })
     } catch (err) {
@@ -181,5 +197,6 @@ export const userController = {
     createPatient,
     allUsers,
     createAdmin,
-    createDoctor
+    createDoctor,
+    getMyProfile
 }

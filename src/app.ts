@@ -8,6 +8,9 @@ import { scheduleRoutes } from "./app/modules/schedule/schedule.router";
 import { DoctorScheduleRoutes } from "./app/modules/doctorSchedule/doctorSchedule.router";
 import { specialtiesRouter } from "./app/modules/specialties/specialties.router";
 import { doctorRouter } from "./app/modules/doctor/doctor.roter";
+import { AppointmentRoutes } from "./app/modules/appointment/appointment.router";
+import notFound from "./app/middleware/notFound";
+import globalErrorHandler from "./app/middleware/globalErrorHandler";
 
 export const app = express()
 
@@ -32,6 +35,7 @@ app.use('/api/v1/auth', authRoutes)
 app.use('/api/v1/schedules', scheduleRoutes)
 app.use('/api/v1', DoctorScheduleRoutes)
 app.use('/api/v1/specialty', specialtiesRouter)
+app.use('/api/v1/appointment', AppointmentRoutes)
 
 
 // Default route testing
@@ -40,6 +44,10 @@ app.get('/',(req:Request, res:Response)=>{
     res.send("Abdur Rahman Server is running")
 })
 
+
+app.use(notFound)
+// global error handler
+app.use(globalErrorHandler)
 
 
 
